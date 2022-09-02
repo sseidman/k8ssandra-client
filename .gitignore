@@ -13,3 +13,12 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# Ignore built cmd
+cmd/kubectl-k8ssandra/kubectl-k8ssandra
+kubectl-k8ssandra
+!kubectl-k8ssandra/
+
+# Local History for Visual Studio Code
+.history/
+.vscode/
