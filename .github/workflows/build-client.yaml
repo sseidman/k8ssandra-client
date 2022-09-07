@@ -1,0 +1,71 @@
+name: k8ssandra-client build and deploy
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [ main ]
+jobs:
+  build_and_test:
+    env:
+      CGO_ENABLED: 0
+    steps:
+      - uses: actions/checkout@v2
+        if: github.event_name == 'pull_request'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/checkout@v2
+        if: github.event_name != 'pull_request'
+      - name: Set up Go 1.19
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.19
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          # GHA requires longer timeout
+          args: --timeout=10m
+          # Optional: show only new issues if it's a pull request. The default value is `false`.
+          only-new-issues: ${{ github.event_name == 'pull_request' }}
+          skip-pkg-cache: true
+          skip-build-cache: true
+      - name: Unit Tests
+        run: |
+          make test
+  build_docker_image:
+    name: Build k8ssandra-client Docker Image
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - name: Set git parsed values
+        id: vars
+        run: |
+          echo ::set-output name=sha_short::$(git rev-parse --short=8 ${{ github.sha }})
+          echo ::set-output name=tag_name::${GITHUB_REF#refs/tags/}
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          file: cmd/kubectl-k8ssandra/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: k8ssandra/k8ssandra-client:${{ steps.vars.outputs.sha_short }}, k8ssandra/k8ssandra-client:latest
+          platforms: linux/amd64
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache

@@ -1,4 +1,4 @@
-package cassdcutil
+package kubernetes
 
 import (
 	"context"

@@ -2,7 +2,7 @@ package helmutil
 
 import (
 	"errors"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -51,7 +51,7 @@ func UpgradeValues(cfg *action.Configuration, chartDir, chartName, releaseName s
 		}
 	}
 	// Read the input file as values
-	data, err := ioutil.ReadAll(inputValues)
+	data, err := io.ReadAll(inputValues)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func MergeValuesFile(cfg *action.Configuration, settings *cli.EnvSettings, chart
 		return nil, err
 	}
 
-	yamlInput, err := ioutil.ReadAll(file)
+	yamlInput, err := io.ReadAll(file)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,9 @@ func recursiveMerge(from, into *yaml.Node) error {
 			into.Content = append(into.Content, v)
 		}
 	case yaml.DocumentNode:
-		recursiveMerge(from.Content[0], into.Content[0])
+		if err := recursiveMerge(from.Content[0], into.Content[0]); err != nil {
+			return err
+		}
 	case yaml.ScalarNode:
 		if from.Tag == "!!float" && into.Tag == "!!int" {
 			// We need a marshalling trick to get it correctly back to int
@@ -189,7 +191,9 @@ func recursiveMerge(from, into *yaml.Node) error {
 				return err
 			}
 			var newVal int
-			yaml.Unmarshal(out, &newVal)
+			if err := yaml.Unmarshal(out, &newVal); err != nil {
+				return err
+			}
 			into.Value = strconv.Itoa(newVal)
 		} else {
 			into.Value = from.Value

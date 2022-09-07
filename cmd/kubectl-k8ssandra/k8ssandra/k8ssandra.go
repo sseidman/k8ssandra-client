@@ -8,7 +8,7 @@ import (
 	// "github.com/k8ssandra/k8ssandra-client/cmd/kubectl-k8ssandra/list"
 	// "github.com/k8ssandra/k8ssandra-client/cmd/kubectl-k8ssandra/migrate"
 	// "github.com/k8ssandra/k8ssandra-client/cmd/kubectl-k8ssandra/nodetool"
-	// "github.com/k8ssandra/k8ssandra-client/cmd/kubectl-k8ssandra/operate"
+	"github.com/k8ssandra/k8ssandra-client/cmd/kubectl-k8ssandra/operate"
 	// "github.com/k8ssandra/k8ssandra-client/cmd/kubectl-k8ssandra/users"
 
 	"github.com/spf13/cobra"
@@ -42,9 +42,9 @@ func NewCmd(streams genericclioptions.IOStreams) *cobra.Command {
 	// cmd.AddCommand(cleaner.NewCmd(streams))
 	// cmd.AddCommand(crds.NewCmd(streams))
 	// cmd.AddCommand(edit.NewCmd(streams))
-	// cmd.AddCommand(operate.NewStartCmd(streams))
-	// cmd.AddCommand(operate.NewRestartCmd(streams))
-	// cmd.AddCommand(operate.NewStopCmd(streams))
+	cmd.AddCommand(operate.NewStartCmd(streams))
+	cmd.AddCommand(operate.NewRestartCmd(streams))
+	cmd.AddCommand(operate.NewStopCmd(streams))
 	// cmd.AddCommand(list.NewCmd(streams))
 	// cmd.AddCommand(migrate.NewCmd(streams))
 	// cmd.AddCommand(users.NewCmd(streams))

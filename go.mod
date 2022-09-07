@@ -3,7 +3,7 @@ module github.com/k8ssandra/k8ssandra-client
 go 1.19
 
 require (
-	github.com/k8ssandra/cass-operator v1.12.0
+	github.com/k8ssandra/cass-operator v1.12.1-0.20220906085913-02eeca96b2da
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	gopkg.in/yaml.v3 v3.0.1
