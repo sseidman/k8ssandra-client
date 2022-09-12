@@ -39,3 +39,14 @@ func createIfNotExistsDir(targetDir string) (string, error) {
 	}
 	return targetDir, nil
 }
+
+func VerifyFileExists(yamlPath string) (bool, error) {
+	if _, err := os.Stat(yamlPath); err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
