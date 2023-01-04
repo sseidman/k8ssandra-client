@@ -1,6 +1,7 @@
 package operate
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/k8ssandra/k8ssandra-client/pkg/cassdcutil"
@@ -173,7 +174,7 @@ func (c *options) Complete(cmd *cobra.Command, args []string) error {
 // Validate ensures that all required arguments and flag values are provided
 func (c *options) Validate() error {
 	// Verify target cluster exists
-	_, err := c.cassManager.CassandraDatacenter(c.dcName, c.namespace)
+	_, err := c.cassManager.CassandraDatacenter(context.Background(), c.dcName, c.namespace)
 	if err != nil {
 		// NotFound is still an error
 		return err
@@ -184,7 +185,7 @@ func (c *options) Validate() error {
 // ValidateRestart ensures that all required arguments and flag values are provided
 func (c *options) ValidateRestart() error {
 	// Verify target cluster exists
-	dc, err := c.cassManager.CassandraDatacenter(c.dcName, c.namespace)
+	dc, err := c.cassManager.CassandraDatacenter(context.Background(), c.dcName, c.namespace)
 	if err != nil {
 		// NotFound is still an error
 		return err
@@ -197,10 +198,10 @@ func (c *options) ValidateRestart() error {
 
 // Run either stops or starts the existing datacenter
 func (c *options) Run(stop bool) error {
-	return c.cassManager.ModifyStoppedState(c.dcName, c.namespace, stop, c.wait)
+	return c.cassManager.ModifyStoppedState(context.Background(), c.dcName, c.namespace, stop, c.wait)
 }
 
 // Restart creates a restart task for the cluster
 func (c *options) Restart() error {
-	return c.cassManager.RestartDc(c.dcName, c.namespace, c.rackName, c.wait)
+	return c.cassManager.RestartDc(context.Background(), c.dcName, c.namespace, c.rackName, c.wait)
 }
