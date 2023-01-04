@@ -3,7 +3,7 @@ module github.com/k8ssandra/k8ssandra-client
 go 1.19
 
 require (
-	github.com/k8ssandra/cass-operator v1.12.1-0.20220906085913-02eeca96b2da
+	github.com/k8ssandra/cass-operator v1.13.1
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	gopkg.in/yaml.v3 v3.0.1
@@ -68,7 +68,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
-	github.com/google/go-cmp v0.5.6 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.2.0 // indirect

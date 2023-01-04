@@ -11,6 +11,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// NamespacedClient encapsulates namespacedClient with public namespace and restConfig
+type NamespacedClient struct {
+	client.Client
+	config    *rest.Config
+	Namespace string
+}
+
 // GetClient returns a controller-runtime client with cass-operator API defined
 func GetClient(restConfig *rest.Config) (client.Client, error) {
 	c, err := client.New(restConfig, client.Options{})
@@ -23,14 +30,18 @@ func GetClient(restConfig *rest.Config) (client.Client, error) {
 	return c, err
 }
 
-func GetClientInNamespace(restConfig *rest.Config, namespace string) (client.Client, error) {
+func GetClientInNamespace(restConfig *rest.Config, namespace string) (*NamespacedClient, error) {
 	c, err := GetClient(restConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	c = client.NewNamespacedClient(c, namespace)
-	return c, nil
+	return &NamespacedClient{
+		config: restConfig,
+		Client: c,
+	}, nil
+	// return c, nil
 }
 
 func CreateNamespaceIfNotExists(client client.Client, namespace string) error {
