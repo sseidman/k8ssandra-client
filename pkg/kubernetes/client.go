@@ -30,14 +30,14 @@ func GetClient(restConfig *rest.Config) (client.Client, error) {
 	return c, err
 }
 
-func GetClientInNamespace(restConfig *rest.Config, namespace string) (*NamespacedClient, error) {
+func GetClientInNamespace(restConfig *rest.Config, namespace string) (NamespacedClient, error) {
 	c, err := GetClient(restConfig)
 	if err != nil {
-		return nil, err
+		return NamespacedClient{}, err
 	}
 
 	c = client.NewNamespacedClient(c, namespace)
-	return &NamespacedClient{
+	return NamespacedClient{
 		config: restConfig,
 		Client: c,
 	}, nil
