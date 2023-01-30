@@ -7,19 +7,22 @@ on:
     branches: [ main ]
 jobs:
   build_and_test:
+    name: Unit testing and linting
+    runs-on: ubuntu-latest
     env:
       CGO_ENABLED: 0
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         if: github.event_name == 'pull_request'
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         if: github.event_name != 'pull_request'
-      - name: Set up Go 1.19
-        uses: actions/setup-go@v1
+      - name: Set up Go
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version-file: 'go.mod'
+          cache: true
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
@@ -39,18 +42,11 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
@@ -61,7 +57,7 @@ jobs:
           echo ::set-output name=tag_name::${GITHUB_REF#refs/tags/}
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           file: cmd/kubectl-k8ssandra/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
