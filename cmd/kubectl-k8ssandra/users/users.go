@@ -10,7 +10,7 @@ type ClientOptions struct {
 	genericclioptions.IOStreams
 }
 
-// NewClientOptions provides an instance of NamespaceOptions with default values
+// NewClientOptions provides an instance of ClientOptions with default values
 func NewClientOptions(streams genericclioptions.IOStreams) *ClientOptions {
 	return &ClientOptions{
 		configFlags: genericclioptions.NewConfigFlags(true),
@@ -18,7 +18,7 @@ func NewClientOptions(streams genericclioptions.IOStreams) *ClientOptions {
 	}
 }
 
-// NewCmd provides a cobra command wrapping NamespaceOptions
+// NewCmd provides a cobra command wrapping ClientOptions
 func NewCmd(streams genericclioptions.IOStreams) *cobra.Command {
 	o := NewClientOptions(streams)
 
@@ -28,8 +28,6 @@ func NewCmd(streams genericclioptions.IOStreams) *cobra.Command {
 
 	// Add subcommands
 	cmd.AddCommand(NewAddCmd(streams))
-
-	// cmd.Flags().BoolVar(&o.listNamespaces, "list", o.listNamespaces, "if true, print the list of all namespaces in the current KUBECONFIG")
 	o.configFlags.AddFlags(cmd.Flags())
 
 	return cmd

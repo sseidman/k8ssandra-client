@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	importAddExample = `
+	userAddExample = `
 	# Add new users to CassandraDatacenter
 	%[1]s add [<args>]
 
@@ -47,16 +47,14 @@ func newAddOptions(streams genericclioptions.IOStreams) *addOptions {
 	}
 }
 
-// NewCmd provides a cobra command wrapping cqlShOptions
+// NewCmd provides a cobra command wrapping newAddOptions
 func NewAddCmd(streams genericclioptions.IOStreams) *cobra.Command {
 	o := newAddOptions(streams)
 
 	cmd := &cobra.Command{
 		Use:     "add [flags]",
 		Short:   "Add new users to CassandraDatacenter installation",
-		Example: fmt.Sprintf(importAddExample, "kubectl k8ssandra users"),
-		// SilenceUsage:  true,
-		// SilenceErrors: true,
+		Example: fmt.Sprintf(userAddExample, "kubectl k8ssandra users"),
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Complete(c, args); err != nil {
 				return err
@@ -111,7 +109,7 @@ func (c *addOptions) Validate() error {
 	return nil
 }
 
-// Run removes the finalizers for a release X in the given namespace
+// Run processes the input, creates a connection to Kubernetes and processes a secret to add the users
 func (c *addOptions) Run() error {
 	restConfig, err := c.configFlags.ToRESTConfig()
 	if err != nil {
