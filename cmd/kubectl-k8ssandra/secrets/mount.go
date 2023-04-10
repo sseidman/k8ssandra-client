@@ -7,7 +7,7 @@ import (
 
 	"github.com/k8ssandra/k8ssandra-client/pkg/kubernetes"
 	"github.com/k8ssandra/k8ssandra-client/pkg/secrets"
-	"github.com/k8ssandra/k8ssandra-operator/controllers/secrets-webhook"
+	secrets_webhook "github.com/k8ssandra/k8ssandra-operator/controllers/secrets-webhook"
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -16,8 +16,10 @@ import (
 
 var (
 	mountExample = `
-        # mount secrets to the local file system
-        %[1]s mount <injections> <namespace>
+        # mount k8s secrets to the local file system where <injections>
+	# takes the following format:
+	# '[{ "secretName": "<secret-name>", "path": "</path/to/secret>" }]'
+        %[1]s mount <injections>
         `
 
 	errNoInjectionsDefined = fmt.Errorf("no injection string provided")
@@ -27,6 +29,7 @@ type options struct {
 	configFlags *genericclioptions.ConfigFlags
 	genericclioptions.IOStreams
 	injections string
+	inject     []secrets_webhook.SecretInjection
 	namespace  string
 	client     kubernetes.NamespacedClient
 }
@@ -67,6 +70,7 @@ func NewMountCmd(streams genericclioptions.IOStreams) *cobra.Command {
 	return cmd
 }
 
+// Complete parses the arguments and necessary flags to options
 func (c *options) Complete(cmd *cobra.Command, args []string) error {
 	var err error
 
@@ -84,22 +88,23 @@ func (c *options) Complete(cmd *cobra.Command, args []string) error {
 	return err
 }
 
+// Validate ensures that all required arguments are provided and in the proper format
 func (c *options) Validate(args []string) error {
 	if len(args) < 1 {
 		return errNoInjectionsDefined
 	}
 
-	c.injections = args[0]
+	var si []secrets_webhook.SecretInjection
+	if err := json.Unmarshal([]byte(args[0]), &si); err != nil {
+		return err
+	}
+	c.inject = si
 	return nil
 }
 
+// Run mount retrieves the k8s secrets and writes the key/values to the local filesystem
 func (c *options) Run() error {
-	var si []secrets_webhook.SecretInjection
-	if err := json.Unmarshal([]byte(c.injections), &si); err != nil {
-		return err
-	}
-
-	for _, injection := range si {
+	for _, injection := range c.inject {
 		secret := &corev1.Secret{}
 		err := c.client.Get(context.Background(), types.NamespacedName{Name: injection.SecretName}, secret)
 		if err != nil {
