@@ -2,6 +2,7 @@ package secrets
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -92,4 +93,25 @@ func readTargetFile(path string) (map[string]string, error) {
 	}
 
 	return users, nil
+}
+
+func CreateSecretsDirectory(path string, secret string) error {
+	secretPath := fmt.Sprintf("%v/%v", path, secret)
+	err := os.MkdirAll(secretPath, 0750)
+	if err != nil && !os.IsExist(err) {
+		return err
+	}
+	return nil
+}
+
+func WriteSecretsKeyValue(path string, secret string, key string, value string) error {
+	f, err := os.Create(fmt.Sprintf("%s/%s/%s", path, secret, key))
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	_, err = f.WriteString(value)
+	return err
 }
