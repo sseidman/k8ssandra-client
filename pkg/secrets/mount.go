@@ -2,7 +2,6 @@ package secrets
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -81,31 +80,6 @@ func readTargetFile(path string) (map[string]string, error) {
 	}
 
 	return users, nil
-}
-
-// Creates a directory on the local filesystem at the path:
-// {path}/{secret}
-func CreateSecretsDirectory(path string, secret string) error {
-	secretPath := fmt.Sprintf("%v/%v", path, secret)
-	err := os.MkdirAll(secretPath, 0750)
-	if err != nil && !os.IsExist(err) {
-		return err
-	}
-	return nil
-}
-
-// Writes key-values for a kubernetes secret to path {path}/{secret} whee each key
-// is its own file whose contents is the value of the key i.e. filename = key, file = value
-func WriteSecretsKeyValue(path string, secret string, key string, value string) error {
-	f, err := os.Create(fmt.Sprintf("%s/%s/%s", path, secret, key))
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-
-	_, err = f.WriteString(value)
-	return err
 }
 
 func readFile(path string) (string, error) {
