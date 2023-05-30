@@ -2,6 +2,7 @@ package secrets
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -81,8 +82,6 @@ func readTargetFile(path string) (map[string]string, error) {
 
 	return users, nil
 }
-<<<<<<< Updated upstream
-=======
 
 // Creates a directory on the local filesystem at the path:
 // {path}/{secret}
@@ -124,4 +123,3 @@ func readFile(path string) (string, error) {
 
 	return string(fileContents), nil
 }
->>>>>>> Stashed changes
