@@ -40,25 +40,13 @@ func readTargetSecretMount(path string) (map[string]string, error) {
 			return nil
 		}
 
-		// We should have two keys here: username and password and use that information..
-		f, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-
-		defer f.Close()
-
-		fileContents, err := io.ReadAll(f)
-		if err != nil {
-			return err
-		}
-		data := string(fileContents)
-
 		switch d.Name() {
 		case "password":
-			password = data
+			password, err = readFile(path)
+			return err
 		case "username":
-			username = data
+			username, err = readFile(path)
+			return err
 		}
 
 		return nil
@@ -92,4 +80,20 @@ func readTargetFile(path string) (map[string]string, error) {
 	}
 
 	return users, nil
+}
+
+func readFile(path string) (string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+
+	defer f.Close()
+
+	fileContents, err := io.ReadAll(f)
+	if err != nil {
+		return "", err
+	}
+
+	return string(fileContents), nil
 }
